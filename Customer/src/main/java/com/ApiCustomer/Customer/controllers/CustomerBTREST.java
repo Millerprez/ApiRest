@@ -3,10 +3,14 @@ package com.ApiCustomer.Customer.controllers;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Date;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,8 +24,11 @@ import com.ApiCustomer.Customer.repositories.CustomerR;
 
 @RestController
 @RequestMapping("/api")
+@CrossOrigin(origins = "http://localhost:4200")
 public class CustomerBTREST {
     
+    private static final SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss");
+
     @Autowired
     private CustomerBT customer;
 
@@ -29,30 +36,28 @@ public class CustomerBTREST {
     private CustomerR customerR;
 
     @GetMapping("/customers/{id}")
-    public ResponseEntity<?> getCustomer(@PathVariable int id){
-        Map<String, Object> response = new HashMap<>();
-
+    public CustomerM getCustomer(@PathVariable int id){
+        CustomerM customer;
         try {
-            CustomerM customer = this.customer.findById(id);
-            response.put("customer", customer);
+            customer = this.customer.findById(id);
         } catch (Exception e) {
-            response.put("Message","No fue encontrado el Cliente");
-            response.put("Error", e.getMessage());
-            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+            System.out.println(e.getMessage());
+            return null;
         }
-
-        return new ResponseEntity<Map<String, Object>>(response, HttpStatus.OK);
+        return customer;
     }
     
     @PostMapping("/customers/save")
     public ResponseEntity<?> saveCustomer(@RequestBody CustomerM customer){
         Map<String, Object> response = new HashMap<>();
         try {
+            customer.setDateRecord(sdf1.format(new Timestamp(new Date().getTime())));
+            customer.setDateUnsubs(sdf1.format(new Timestamp(new Date().getTime())));
             this.customer.saveCustomer(customer);
             this.customerR.save(customer);
-            response.put("Mensaje", "Cliente guardado con éxito");
+            response.put("name", "Cliente guardado con éxito");
         } catch (Exception e) {
-            response.put("Mensaje", "No fue posible agregar al cliente".concat(String.valueOf(customer.getId()).toString()));
+            response.put("name", "No fue posible agregar al cliente".concat(String.valueOf(customer.getId()).toString()));
             response.put("Error", e.getMessage());
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -66,9 +71,9 @@ public class CustomerBTREST {
         try {
             this.customer.updateCustomer(customer);
             this.customerR.save(customer);
-            response.put("Mensaje", "Cliente actualizado con éxito");
+            response.put("name", "Cliente actualizado con éxito");
         } catch (Exception e) {
-            response.put("Mensaje", "No fue posible agregar al cliente".concat(String.valueOf(customer.getId()).toString()));
+            response.put("name", "No fue posible agregar al cliente".concat(String.valueOf(customer.getId()).toString()));
             response.put("Error", e.getMessage());
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }

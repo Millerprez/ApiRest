@@ -12,10 +12,10 @@ public class CustomerBT {
     private Context context;
 
     public CustomerM findById(int id){
-        context.loadTree(); 
+        context.loadTree();
         return context.serchCustomer(id);
     }
-
+    
     public void saveCustomer(CustomerM c){
         context.loadTree(); 
         context.saveCustomer(c);
@@ -26,6 +26,4 @@ public class CustomerBT {
         context.loadTree(); 
         context.updateCustomer(c);
     }
-
-
 }
